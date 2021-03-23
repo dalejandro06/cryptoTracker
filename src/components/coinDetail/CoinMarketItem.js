@@ -4,7 +4,7 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import Colors from '../../res/colors';
 
-const CoinDetailScreen = ({item}) => {
+const CoinMarketItem = ({item}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.nameText}>{item.name}</Text>
@@ -25,11 +25,13 @@ const styles = StyleSheet.create({
   },
   nameText: {
     color: '#fff',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: 17
   },
   priceText: {
-    color: '#fff'
+    color: '#fff',
+    fontSize: 14
   }
 });
 
-export default CoinDetailScreen;
+export default CoinMarketItem;

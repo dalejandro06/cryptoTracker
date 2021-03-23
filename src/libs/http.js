@@ -9,7 +9,6 @@ class Http {
       return json;
     } catch (error) {
       console.error('Http GET method error', error);
-      throw new Error(error);
     }
   }
   async post(url, body) {

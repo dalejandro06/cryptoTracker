@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable comma-dangle */
 import React from 'react';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   StyleSheet,
   FlatList,
   SectionList,
-  Pressable
+  Pressable,
+  Alert
 } from 'react-native';
 import Colors from '../../res/colors';
 import Http from '../../libs/http';
@@ -28,16 +29,18 @@ function CoinDetailScreen({route, navigation}) {
 
   useEffect(() => {
     navigation.setOptions({title: currentCoin.symbol});
-  }, [currentCoin.symbol, navigation]);
+    getFavorite();
+  }, [currentCoin, navigation, getFavorite]);
+
   useEffect(() => {
     getMarkets(currentCoin.id);
-  }, [currentCoin.id]);
+  }, [currentCoin]);
+
   const getSymbolIcon = (coinNameId) => {
     if (coinNameId) {
       return `https://c1.coinlore.com/img/16x16/${coinNameId}.png`;
     }
   };
-
   const getSections = (coin) => {
     const sections = [
       {
@@ -66,13 +69,40 @@ function CoinDetailScreen({route, navigation}) {
     isFavorite ? removeFavorite() : addFavorite();
   };
 
-  const removeFavorite = () => {};
-  const addFavorite = () => {
+  const removeFavorite = () => {
+    Alert.alert('Remove Favorite', 'Estas seguro?', [
+      {
+        text: 'cancel',
+        onPress: () => {},
+        style: 'cancel'
+      },
+      {
+        text: 'Remove',
+        onPress: async () => {
+          const key = `favorite-${currentCoin.id}`;
+          const deletedItem = await Storage.instance.remove(key);
+          deletedItem && setIsFavorite(false);
+        },
+        style: 'destructive'
+      }
+    ]);
+  };
+  const addFavorite = async () => {
     const coin = JSON.stringify(currentCoin);
     const key = `favorite-${currentCoin.id}`;
-    const isStored = Storage.instance.add(key, coin);
-    isStored && setIsFavorite(true);
+    const isStored = await Storage.instance.add(key, coin);
+    setIsFavorite(isStored);
   };
+
+  const getFavorite = useCallback(async () => {
+    try {
+      const key = `favorite-${currentCoin.id}`;
+      const favorite = await Storage.instance.get(key);
+      favorite && setIsFavorite(true);
+    } catch (e) {
+      console.error('Error obtaining favorite', e);
+    }
+  }, [currentCoin]);
 
   return (
     <View style={styles.container}>
@@ -185,7 +215,7 @@ const styles = StyleSheet.create({
   },
   marketsTitle: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 16,
     marginLeft: 16,
     fontWeight: 'bold'
