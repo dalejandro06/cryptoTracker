@@ -28,7 +28,6 @@ function FavoritesScreen({navigation}) {
   }, [navigation]);
 
   const handleNavigate = (coin) => {
-    console.log(coin);
     navigation.navigate('CoinDetail', {coin});
   };
 
